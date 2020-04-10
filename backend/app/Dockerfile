@@ -19,7 +19,7 @@ RUN apk update \
 RUN mkdir /app
 WORKDIR /app
 
-COPY ./backend/app/requirements.txt /app/
+COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
-COPY ./backend/app/ /app/
+COPY . /app/

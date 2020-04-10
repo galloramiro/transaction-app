@@ -8,24 +8,20 @@ services:
       POSTGRES_PASSWORD: example
   backend:
     container_name: backend
-    build: 
-      context: .
-      dockerfile: ./backend/app/Dockerfile
+    build: ./backend/app/
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/backend
+      - ./backend/app/:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
   frontend:
     container_name: frontend
-    build:
-      context: .
-      dockerfile: ./frontend/app/Dockerfile
+    build: ./frontend/app/
     command: ["npm", "start"]
     volumes:
-      - '.:/frontend'
-      - '/frontend/node_modules'
+      - ./frontend/app/:/app
+      - '/frontend/app/:/app/node_modules'
     ports:
       - "3000:3000"
