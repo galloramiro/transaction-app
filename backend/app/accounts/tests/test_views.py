@@ -51,7 +51,7 @@ def test_create_credit_action():
         
     response = client.post(
         reverse("accounts:account-credit", args=(account.pk,)),
-        dict(amount='1000')
+        dict(amount="1000")
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -68,10 +68,47 @@ def test_create_credit_action_with_negative_values():
         
     response = client.post(
         reverse("accounts:account-credit", args=(account.pk,)),
-        dict(amount='-1000')
+        dict(amount="-1000")
     )
 
-    expected_response = dict(amount=['You are traing to make a negative credit operation'])
+    expected_response = dict(amount=["You are traing to make a negative credit operation"])
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == expected_response
+
+
+@pytest.mark.django_db
+def test_create_debit_action():
+    client = APIClient()
+    account = AccountFactory()
+    CreditFactory(account=account)
+    DebitFactory(account=account)
+        
+    response = client.post(
+        reverse("accounts:account-debit", args=(account.pk,)),
+        dict(amount="1000")
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()["balance"] == "9000.00"
+    assert len(response.json()["debit_operations"]) == 2
+
+
+@pytest.mark.django_db
+def test_create_debit_action_with_amount_greater_than_account_balance():
+    client = APIClient()
+    account = AccountFactory()
+    CreditFactory(account=account)
+    DebitFactory(account=account)
+        
+    response = client.post(
+        reverse("accounts:account-debit", args=(account.pk,)),
+        dict(amount="100000")
+    )
+
+    expected_response = dict(
+        amount=["You don't have enough money in the account to perform this operation"]
+    )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == expected_response
