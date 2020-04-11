@@ -40,7 +40,7 @@ class CreateCreditSerializer(serializers.ModelSerializer):
     def validate_amount(self, amount):
         if amount < 0:
             raise serializers.ValidationError(
-            'You are traing to make a negative credit operation'
+            "You are traing to make a negative credit operation"
         )
         return amount
     
