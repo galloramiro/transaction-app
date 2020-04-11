@@ -16,12 +16,11 @@ class AccountAdmin(admin.ModelAdmin):
     """Account admin"""
 
     list_display = (
-        'name',
         'balance',
         'created',
         'modified',
     )
-    search_fields = ('name', 'modified')
+    search_fields = ('modified',)
     list_filter = (
         'created',
         'modified',
