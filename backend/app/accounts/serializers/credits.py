@@ -27,3 +27,27 @@ class CreditModelSerializer(serializers.ModelSerializer):
     
     def get_time(self, credit: Credit):
         return credit.created.time().strftime("%H:%M")
+
+
+class CreateCreditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        """Meta class."""
+
+        model = Credit
+        fields = ("amount",)
+
+    def validate_amount(self, amount):
+        if amount < 0:
+            raise serializers.ValidationError(
+            'You are traing to make a negative credit operation'
+        )
+        return amount
+    
+    def create(self, data):
+        account = self.initial_data["account"] 
+        amount = data["amount"]
+        credit = Credit.objects.create(account=account, amount=amount)
+        account.balance += amount
+        account.save()
+        return credit

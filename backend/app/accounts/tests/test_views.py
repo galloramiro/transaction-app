@@ -22,7 +22,7 @@ from accounts.tests.factories import (
 
 
 @pytest.mark.django_db
-def test_account_view_set():
+def test_balance_account_view_set():
     client = APIClient()
     account = AccountFactory()
     CreditFactory(account=account)
@@ -41,3 +41,37 @@ def test_account_view_set():
     assert len(response.json()["credit_operations"]) == 2
     assert len(response.json()["debit_operations"]) == 1
 
+
+@pytest.mark.django_db
+def test_create_credit_action():
+    client = APIClient()
+    account = AccountFactory()
+    CreditFactory(account=account)
+    DebitFactory(account=account)
+        
+    response = client.post(
+        reverse("accounts:account-credit", args=(account.pk,)),
+        dict(amount='1000')
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.json()["balance"] == "11000.00"
+    assert len(response.json()["credit_operations"]) == 2
+
+
+@pytest.mark.django_db
+def test_create_credit_action_with_negative_values():
+    client = APIClient()
+    account = AccountFactory()
+    CreditFactory(account=account)
+    DebitFactory(account=account)
+        
+    response = client.post(
+        reverse("accounts:account-credit", args=(account.pk,)),
+        dict(amount='-1000')
+    )
+
+    expected_response = dict(amount=['You are traing to make a negative credit operation'])
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == expected_response

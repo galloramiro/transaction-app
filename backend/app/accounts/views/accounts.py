@@ -10,7 +10,11 @@ from rest_framework.response import Response
 from accounts.models import Account
 
 # Serializers
-from accounts.serializers import AccountModelSerializer
+from accounts.serializers import (
+    AccountModelSerializer, 
+    CreateCreditSerializer,
+    CreditModelSerializer,
+)
 
 
 class AccountViewSet(viewsets.GenericViewSet):
@@ -25,9 +29,26 @@ class AccountViewSet(viewsets.GenericViewSet):
     def get_serializer_class(self):
         if self.action == "balance":
             return AccountModelSerializer
+        if self.action == "credit":
+            return CreateCreditSerializer
     
     @action(detail=True, methods=['get'])
     def balance(self, request, *args, **kwargs):
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(self.get_object()).data
         return Response(serializer)
+
+    @action(detail=True, methods=['post'])
+    def credit(self, request, *args, **kwargs):
+        account = self.get_object()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(
+            data=dict(
+                account=account,
+                amount=request.data['amount'] 
+            ),
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        account = AccountModelSerializer(account)
+        return Response(account.data, status=status.HTTP_201_CREATED)
