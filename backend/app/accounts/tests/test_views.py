@@ -40,6 +40,7 @@ def test_balance_account_view_set():
     assert response.json()["balance"] == "10000.00"
     assert len(response.json()["credit_operations"]) == 2
     assert len(response.json()["debit_operations"]) == 1
+    assert len(response.json()["transactions"]) == 3
 
 
 @pytest.mark.django_db
@@ -57,6 +58,7 @@ def test_create_credit_action():
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json()["balance"] == "11000.00"
     assert len(response.json()["credit_operations"]) == 2
+    assert len(response.json()["transactions"]) == 3
 
 
 @pytest.mark.django_db
@@ -92,6 +94,7 @@ def test_create_debit_action():
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json()["balance"] == "9000.00"
     assert len(response.json()["debit_operations"]) == 2
+    assert len(response.json()["transactions"]) == 3
 
 
 @pytest.mark.django_db

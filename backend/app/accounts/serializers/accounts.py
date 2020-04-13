@@ -15,6 +15,7 @@ class AccountModelSerializer(serializers.ModelSerializer):
 
     credit_operations = CreditModelSerializer(read_only=True, many=True)
     debit_operations = DebitModelSerializer(read_only=True, many=True)
+    transactions = serializers.SerializerMethodField()
 
     class Meta:
         """Meta class."""
@@ -24,4 +25,11 @@ class AccountModelSerializer(serializers.ModelSerializer):
             "balance",
             "credit_operations",
             "debit_operations",
+            "transactions",
         )
+
+    def get_transactions(self, account: Account):
+        credit_op = CreditModelSerializer(account.credit_operations, read_only=True, many=True).data
+        debits_op = DebitModelSerializer(account.debit_operations, read_only=True, many=True).data
+        return credit_op + debits_op
+        
